@@ -43,9 +43,3 @@ def preprocess(data, ngrams=False):
 		return with_trigram
 
 	return rm_stop
-
-if __name__ == '__main__':
-	df = pd.read_csv('../../data/left/data_inside_climate_news_articles.csv')
-	data = df['content'].tolist()
-
-	print(preprocess(data, ngrams=True)[3])
