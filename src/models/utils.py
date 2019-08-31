@@ -55,7 +55,7 @@ def preprocess(data, ngrams=False):
 
 
 
-def train_rf(features, labels):
+def train_rf(features, labels, type):
 	'''
 		Implements random forest with Grid Search for hyperparameter optimization.
 
@@ -95,18 +95,19 @@ def train_rf(features, labels):
 	print("Model accuracy on test set: {}".format(accuracy))
 
 	#Save model
-	with open('./saved_models/best_forest.pb', 'wb') as f:
+	with open('./saved_models/best_forest_{}.pb'.format(type), 'wb') as f:
 		pickle.dump(best_forest, f)
 
 
 
-def train_svm(features,labels):
+def train_svm(features,labels, type):
 	'''
 		Implements SVM with Grid Search for hyperparameter optimization.
 
 		Input:
 			features - preprocessed articles outputted by preprocess()
 			labels - 0 or 1 assigned to each article
+			type - 'w2v', 'lda', 'd2v', 'wmd'
 		Output:
 			best_model: saved pickle model file
 	'''
@@ -132,5 +133,5 @@ def train_svm(features,labels):
 	print("Model accuracy on test set: {}".format(accuracy))
 
 	#Save model
-	with open('./saved_models/best_svm.pb', 'wb') as f:
+	with open('./saved_models/best_svm_{}.pb'.format(type), 'wb') as f:
 		pickle.dump(best_svm, f)
