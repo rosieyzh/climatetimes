@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
-import cPickle
+import pickle
 
 def preprocess(data, ngrams=False):
 	'''
@@ -80,8 +80,7 @@ def train_rf(features, labels):
              min_samples_leaf = min_samples_leaf)
 
 	#Instantiate grid search
-	forest_grid = GridSearchCV(estimator = forest, param_grid = parameters, cv = 3, verbose = 1, 
-                      n_jobs = -1)
+	forest_grid = GridSearchCV(estimator = forest, param_grid = parameters, cv = 3, verbose = 1, n_jobs = -1)
 
 	#Fit grid search to data
 	forest_grid.fit(xTrain, yTrain)
@@ -97,7 +96,7 @@ def train_rf(features, labels):
 
 	#Save model
 	with open('./saved_models/best_forest.pb', 'wb') as f:
-		cPickle.dump(best_forest, f)
+		pickle.dump(best_forest, f)
 
 
 
@@ -115,19 +114,14 @@ def train_svm(features,labels):
 	svm = SVC(random_state = 0)
 
 	#Create dictionary for GridSearch to iterate over
-	parameters = {'C': [0.1, 1, 10, 100, 1000],  
-              'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 
-              'epsilon':[0.1,0.2,0.3,0.5]
-              'kernel': ['linear', 'rbf', 'poly']} 
+	parameters = {'C': [0.1, 1, 10, 100, 1000], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 'epsilon':[0.1,0.2,0.3,0.5], 'kernel': ['linear', 'rbf', 'poly']}
 
     #Instantiate grid search
-    svm_grid = GridSearchCV(estimator = svm, param_grid = parameters, cv = 3, verbose = 1, 
-                      n_jobs = -1)
+	svm_grid = GridSearchCV(estimator = svm, param_grid = parameters, cv = 3, verbose = 1, n_jobs = -1)
 
-
-    #Fit grid search to data
-    svm_grid.fit(xTrain, yTrain)
-
+    #Fit grid search to data 
+	svm_grid.fit(xTrain, yTrain)
+	
     #Print the parameters of the best model
 	print(svm_grid.best_params_)
 	best_svm = svm_grid.best_estimator_
@@ -139,4 +133,4 @@ def train_svm(features,labels):
 
 	#Save model
 	with open('./saved_models/best_svm.pb', 'wb') as f:
-		cPickle.dump(best_svm, f)
+		pickle.dump(best_svm, f)
