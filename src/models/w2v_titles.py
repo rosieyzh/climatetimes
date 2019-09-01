@@ -46,11 +46,11 @@ def train_w2v(articles, side):
 	]
 
 	#get most similar
-	get_w2v_most_similar(w2v, vocab, './saved_models/{}_most_similar.txt'.format(side))
+	get_w2v_most_similar(w2v, vocab, './saved_models/{}_most_similar_1.txt'.format(side))
 
 	#save model and word vectors
-	w2v.save('./saved_models/w2v_{}'.format(side))
-	w2v.wv.save_word2vec_format("./saved_models/w2v_vectors_{}".format(side))
+	w2v.save('./saved_models/w2v_1_{}'.format(side))
+	w2v.wv.save_word2vec_format("./saved_models/w2v_vectors_1_{}".format(side))
 	print("Model saved successfully!")
 
 def get_w2v_most_similar(model, vocab, output_file):
@@ -134,7 +134,8 @@ if __name__ == '__main__':
 	train_w2v(right_articles, 'right')
 	print("Finished w2v training")
 	
-
+	
+	'''
 	#GET PRETRAINED W2V VECTORS
 	all_titles = left_data['title'].tolist() + right_data['title'].tolist()
 
@@ -146,9 +147,10 @@ if __name__ == '__main__':
 	all_labels = left_data['denial?'].tolist() + right_data['denial?'].tolist()
 	all_labels = np.array(rm_labels(all_labels, indices_rm))
 	print(all_labels.shape)
-	'''
+	
 	train_rf(w2v_titles, all_labels, 'w2v')
 	print("Finished rf training")
-	'''
+	
 	train_svm(w2v_titles, all_labels, 'w2v')
 	print("Finished svm training")
+	'''

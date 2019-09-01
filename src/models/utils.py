@@ -46,8 +46,8 @@ def preprocess(data, ngrams=False):
 		bigram_mod = Phraser(bigram)
 		trigram_mod = Phraser(trigram)
 
-		#with_bigram = [bigram_mod[article] for article in processed_data]
-		with_trigram = [trigram_mod[bigram_mod[article]] for article in rm_stop]
+		with_bigram = [bigram_mod[article] for article in rm_stop]
+		with_trigram = [trigram_mod[article] for article in with_bigram]
 
 		return with_trigram
 
