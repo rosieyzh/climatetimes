@@ -6,6 +6,7 @@ from gensim.models import Word2Vec
 from gensim.models import KeyedVectors
 from gensim.models.phrases import Phraser, Phrases
 
+import simplejson
 from utils import preprocess, train_rf, train_svm
 
 
@@ -16,7 +17,7 @@ from utils import preprocess, train_rf, train_svm
 
 def train_w2v(articles, side):
 	'''
-		Trains word2vec model from scratch based on articles.
+		Trains word2vec model from scratch based on articles, and retrieves most similar words to vocab
 
 		Input:
 			articles - list of article content read from csv
@@ -34,16 +35,43 @@ def train_w2v(articles, side):
 										  )
 	print("Word2Vec Model finished training")
 
-	if 'global_warming' in w2v.wv.vocab:
-		print(w2v.wv.most_similar('global_warming'))
-	else:
-		print('global_warming not in vocab')
+	vocab = [
+			 'global_warming',
+			 'climate_change',
+			 'climate',
+			 'greenhouse_gas',
+			 'carbon_dioxide',
+			 'CO2',
+			 'denial'
+	]
+
+	#get most similar
+	get_w2v_most_similar(w2v, vocab, './saved_models/{}_most_similar.txt'.format(side))
 
 	#save model and word vectors
 	w2v.save('./saved_models/w2v_{}'.format(side))
 	w2v.wv.save_word2vec_format("./saved_models/w2v_vectors_{}".format(side))
 	print("Model saved successfully!")
 
+def get_w2v_most_similar(model, vocab, output_file):
+	'''
+		Gets most similar words to each vocab item in vocab list and prints to file.
+
+		Inputs:
+			model - w2v model
+			vocab - list of vocabulary terms
+			output_file - output file path
+	'''
+
+	f = open(output_file, 'w')
+	for word in vocab:
+		if word in model.wv.vocab:
+			f.write('{}: \t'.format(word))
+			simplejson.dump(model.wv.most_similar(word), f)
+		else:
+			f.write('{} not in vocab'.format(word))
+		f.write('\n')
+	f.close()
 
 def get_w2v_individual(title, model):
 	'''
@@ -100,12 +128,12 @@ if __name__ == '__main__':
 	left_articles=left_data['content'].tolist()
 	right_articles=right_data['content'].tolist()
 
-	'''
+	
 	#TRAIN W2V MODELS
 	train_w2v(left_articles, 'left')
 	train_w2v(right_articles, 'right')
 	print("Finished w2v training")
-	'''
+	
 
 	#GET PRETRAINED W2V VECTORS
 	all_titles = left_data['title'].tolist() + right_data['title'].tolist()
@@ -118,15 +146,9 @@ if __name__ == '__main__':
 	all_labels = left_data['denial?'].tolist() + right_data['denial?'].tolist()
 	all_labels = np.array(rm_labels(all_labels, indices_rm))
 	print(all_labels.shape)
-
+	'''
 	train_rf(w2v_titles, all_labels, 'w2v')
 	print("Finished rf training")
+	'''
 	train_svm(w2v_titles, all_labels, 'w2v')
 	print("Finished svm training")
-
-
-
-
-	
-
-

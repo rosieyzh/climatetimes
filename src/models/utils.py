@@ -115,7 +115,7 @@ def train_svm(features,labels, type):
 	svm = SVC(random_state = 0)
 
 	#Create dictionary for GridSearch to iterate over
-	parameters = {'C': [0.1, 1, 10, 100, 1000], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 'epsilon':[0.1,0.2,0.3,0.5], 'kernel': ['linear', 'rbf', 'poly']}
+	parameters = {'C': [0.1, 1, 10, 100, 1000], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 'kernel': ['linear', 'rbf', 'poly']}
 
     #Instantiate grid search
 	svm_grid = GridSearchCV(estimator = svm, param_grid = parameters, cv = 3, verbose = 1, n_jobs = -1)
