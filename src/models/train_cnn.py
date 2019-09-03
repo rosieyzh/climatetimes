@@ -113,8 +113,8 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 			for word, i in word_index.items():
 			    if i >= MAX_NUM_WORDS:
 			        continue
-			    
-			    embedding_vector = word_vectors[word]
+			    if word in word_vectors.wv.vocab:
+			    	embedding_vector = word_vectors[word]
 			    if embedding_vector is not None:
 			    	#If vector returns none, zeroes are placed instead
 			    	embedding_matrix[i] = embedding_vector
@@ -128,7 +128,7 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 			for word, i in word_index.items():
 			    if i >= MAX_NUM_WORDS:
 			        continue
-			    try:
+			    if word in word_vectors.wv.vocab:
 			    	embedding_vector = word_vectors[word]
 			    if embedding_vector is not None:
 			    	#If vector returns none, zeroes are placed instead
@@ -226,7 +226,7 @@ if __name__ == '__main__':
 
 	preprocessed_articles=preprocess(all_articles)
 
-	train_cnn(preprocessed_articles, all_labels, 'glove')
+	#train_cnn(preprocessed_articles, all_labels, 'glove')
 
 	train_cnn(preprocessed_articles, all_labels, 'google')
 	
