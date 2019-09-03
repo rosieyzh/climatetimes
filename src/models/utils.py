@@ -15,7 +15,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
+
+#CNN
+
+import tensorflow as tf
+
+from tensorflow.keras import layers
 import pickle
+
 
 def preprocess(data, ngrams=False):
 	'''
@@ -40,14 +47,11 @@ def preprocess(data, ngrams=False):
 
 	#incorporate bigrams and trigrams
 	if ngrams:
-		bigram = Phrases(rm_stop, min_count=5, threshold=100)
-		trigram = Phrases(bigram[rm_stop], threshold=100)
+		bigram = Phrases(rm_stop, min_count=5, threshold=10)
+		trigram = Phrases(bigram[rm_stop], threshold=10)
 
-		bigram_mod = Phraser(bigram)
 		trigram_mod = Phraser(trigram)
-
-		with_bigram = [bigram_mod[article] for article in rm_stop]
-		with_trigram = [trigram_mod[article] for article in with_bigram]
+		with_trigram = [trigram_mod[article] for article in rm_stop]
 
 		return with_trigram
 
@@ -69,9 +73,9 @@ def train_rf(features, labels, type):
 	forest = RandomForestClassifier(random_state = 0)
 
 	#hyperparameters to test with GridSearch
-	n_estimators = [100, 300, 500, 800, 1200]
-	max_depth = [5, 8, 15, 25, 30]
-	min_samples_split = [2, 5, 10, 15, 100]
+	n_estimators = [300, 500, 800]
+	max_depth = [15, 25, 30]
+	min_samples_split = [5, 10, 15, 100]
 	min_samples_leaf = [1, 2, 5, 10] 
 
 	#Create dictionary for GridSearch to iterate over
@@ -115,7 +119,7 @@ def train_svm(features,labels, type):
 	svm = SVC(random_state = 0)
 
 	#Create dictionary for GridSearch to iterate over
-	parameters = {'C': [0.1, 1, 10, 100, 1000], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 'kernel': ['linear', 'rbf', 'poly']}
+	parameters = {'C': [0.1, 1, 10, 100, 1000], 'gamma': [1, 0.1, 0.01, 0.001, 0.0001], 'kernel': ['rbf']}
 
     #Instantiate grid search
 	svm_grid = GridSearchCV(estimator = svm, param_grid = parameters, cv = 3, verbose = 1, n_jobs = -1)

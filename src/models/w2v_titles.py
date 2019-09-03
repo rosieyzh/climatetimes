@@ -46,11 +46,11 @@ def train_w2v(articles, side):
 	]
 
 	#get most similar
-	get_w2v_most_similar(w2v, vocab, './saved_models/{}_most_similar_1.txt'.format(side))
+	get_w2v_most_similar(w2v, vocab, './saved_models/{}_most_similar_.txt'.format(side))
 
 	#save model and word vectors
 	w2v.save('./saved_models/w2v_1_{}'.format(side))
-	w2v.wv.save_word2vec_format("./saved_models/w2v_vectors_1_{}".format(side))
+	w2v.wv.save_word2vec_format("./saved_models/w2v_vectors_{}".format(side))
 	print("Model saved successfully!")
 
 def get_w2v_most_similar(model, vocab, output_file):
@@ -67,7 +67,7 @@ def get_w2v_most_similar(model, vocab, output_file):
 	for word in vocab:
 		if word in model.wv.vocab:
 			f.write('{}: \t'.format(word))
-			simplejson.dump(model.wv.most_similar(word), f)
+			simplejson.dump(model.wv.most_similar(word, topn=25), f)
 		else:
 			f.write('{} not in vocab'.format(word))
 		f.write('\n')
@@ -127,15 +127,20 @@ if __name__ == '__main__':
 
 	left_articles=left_data['content'].tolist()
 	right_articles=right_data['content'].tolist()
-
+	all_articles=left_articles+right_articles
 	
 	#TRAIN W2V MODELS
+
+	'''
 	train_w2v(left_articles, 'left')
 	train_w2v(right_articles, 'right')
+	train_w2v(all_articles, 'both')
 	print("Finished w2v training")
-	
+	'''
 	
 	'''
+	# CLASSIFICATION WITH TITLES
+
 	#GET PRETRAINED W2V VECTORS
 	all_titles = left_data['title'].tolist() + right_data['title'].tolist()
 
@@ -154,3 +159,4 @@ if __name__ == '__main__':
 	train_svm(w2v_titles, all_labels, 'w2v')
 	print("Finished svm training")
 	'''
+
