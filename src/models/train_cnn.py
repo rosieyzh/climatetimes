@@ -213,7 +213,7 @@ if __name__ == '__main__':
 	FILEPATH_LEFT = '../../data/all_left_filtered.csv'
 	FILEPATH_RIGHT = '../../data/all_right_filtered.csv'
 	FILEPATH_GOOGLE_PRETRAINED='./saved_models/GoogleNews-vectors-negative300.bin'
-	FILEPATH_BOTH = './saved_models/final_w2v/w2v_1_both'
+	FILEPATH_BOTH = './saved_models/w2v_1_both'
 
 
 	left_data = pd.read_csv(FILEPATH_LEFT)
@@ -226,7 +226,7 @@ if __name__ == '__main__':
 
 	preprocessed_articles=preprocess(all_articles)
 
-	#train_cnn(preprocessed_articles, all_labels, 'glove')
+	train_cnn(preprocessed_articles, all_labels, 'glove')
 
 	train_cnn(preprocessed_articles, all_labels, 'google')
 	
