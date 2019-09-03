@@ -102,8 +102,9 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 			        continue
 			    embedding_vector = embeddings_index.get(word)
 			    if embedding_vector is not None:
-			        # words not found in embedding index will be all-zeros.
+			    	#If vector returns none, zeroes are placed instead
 			        embedding_matrix[i] = embedding_vector
+
 		elif type=='google':
 
 			print("Using Google pretrained word embeddings.")
@@ -112,11 +113,12 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 			for word, i in word_index.items():
 			    if i >= MAX_NUM_WORDS:
 			        continue
-			    try:
-			    	embedding_vector = word_vectors[word]
+			    
+			    embedding_vector = word_vectors[word]
+			    if embedding_vector is not None:
+			    	#If vector returns none, zeroes are placed instead
 			    	embedding_matrix[i] = embedding_vector
-			    except KeyError:
-			    	embedding_matrix[i]=np.random.normal(0,np.sqrt(0.25),EMBEDDING_DIM)
+			    	
 
 		elif type=='ours':
 
@@ -128,9 +130,9 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 			        continue
 			    try:
 			    	embedding_vector = word_vectors[word]
+			    if embedding_vector is not None:
+			    	#If vector returns none, zeroes are placed instead
 			    	embedding_matrix[i] = embedding_vector
-			    except KeyError:
-			    	embedding_matrix[i]=np.random.normal(0,np.sqrt(0.25),EMBEDDING_DIM)
 
 
 		# load pre-trained word embeddings into an Embedding layer
@@ -170,7 +172,7 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 
 		model.compile(loss='categorical_crossentropy',
 		              optimizer= adam,
-		              metrics=['accuracy'])
+		              metrics=['acc'])
 
 		history = History()
 
@@ -193,8 +195,7 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 		plt.plot(history.history['acc'])  
 		plt.plot(history.history['val_acc'])  
 		plt.title('model accuracy')  
-		plt.ylabel('accuracy')  
-		plt.xlabel('epoch')  
+		plt.ylabel('accuracy')    
 		plt.legend(['train', 'test'], loc='upper left')  
 		   
 		# summarize history for loss  
@@ -224,10 +225,13 @@ if __name__ == '__main__':
 	all_labels = left_data['denial?'].tolist() + right_data['denial?'].tolist()
 
 	preprocessed_articles=preprocess(all_articles)
-	'''
+
+	train_cnn(preprocessed_articles, all_labels, 'glove')
+
 	train_cnn(preprocessed_articles, all_labels, 'google')
-	'''
+	
 	train_cnn(preprocessed_articles, all_labels, 'ours')
+
 
 
 
