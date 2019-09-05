@@ -1,0 +1,70 @@
+TOPIC NUMBER 0
+people, 0.018954
+know, 0.017241
+going, 0.010900
+think, 0.009753
+like, 0.009394
+one, 0.008174
+really, 0.007408
+us, 0.006117
+get, 0.005724
+water, 0.005546
+
+
+
+TOPIC NUMBER 1
+year, 0.009200
+water, 0.009141
+said, 0.009123
+Arctic, 0.007372
+heat, 0.005629
+temperature, 0.005461
+years, 0.004977
+record, 0.004818
+temperatures, 0.004783
+warming, 0.004064
+
+
+
+TOPIC NUMBER 2
+climate, 0.023316
+change, 0.016093
+global, 0.010742
+world, 0.009894
+warming, 0.006238
+emissions, 0.005512
+percent, 0.005428
+report, 0.005046
+science, 0.005037
+would, 0.004909
+
+
+
+TOPIC NUMBER 3
+energy, 0.015121
+oil, 0.012786
+said, 0.012192
+would, 0.008906
+state, 0.006602
+industry, 0.006309
+power, 0.006021
+percent, 0.005783
+gas, 0.005724
+new, 0.005109
+
+
+
+TOPIC NUMBER 4
+climate, 0.016524
+change, 0.010058
+said, 0.008100
+going, 0.006670
+would, 0.006295
+think, 0.005981
+United_States, 0.005025
+people, 0.004998
+government, 0.004243
+know, 0.004166
+
+
+
