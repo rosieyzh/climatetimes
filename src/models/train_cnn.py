@@ -26,17 +26,19 @@ from utils import preprocess
 
 import matplotlib.pyplot as plt 
 
-#global variables
+#global variables 
 BASE_DIR = './saved_models'
 GLOVE_DIR = os.path.join(BASE_DIR, 'glove.6B')
-MAX_SEQUENCE_LENGTH = 1000
-MAX_NUM_WORDS = 1000
+MAX_SEQUENCE_LENGTH = 1000 #Max sequence of 1000 words per article
+MAX_NUM_WORDS = 100000 #default is glove pretrained model
 EMBEDDING_DIM = 300
 VALIDATION_SPLIT = 0.2
 LEARNING_RATE = .00011
 BATCH_SIZE = 32
-DROPOUT_RATE = 0.45
-INNERLAYER_DROPOUT_RATE = 0.15
+DROPOUT_RATE = 0.45 #Dropout for last layer
+INNERLAYER_DROPOUT_RATE = 0.1 #Dropout for inner layers
+
+np.random.seed(2019) #for reproducibility 
 
 def index_glove():
 
@@ -54,7 +56,7 @@ def index_glove():
 
 
 
-def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, max_nb_words=MAX_NUM_WORDS, embedding_dim=EMBEDDING_DIM, validation_split=VALIDATION_SPLIT, learning_rate=LEARNING_RATE, batch_size=BATCH_SIZE, droupout_rate=DROPOUT_RATE, innerlayer_dropout_rate=INNERLAYER_DROPOUT_RATE):
+def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, max_nb_words=MAX_NUM_WORDS, embedding_dim=EMBEDDING_DIM, validation_split=VALIDATION_SPLIT, learning_rate=LEARNING_RATE, batch_size=BATCH_SIZE, dropout_rate=DROPOUT_RATE, innerlayer_dropout_rate=INNERLAYER_DROPOUT_RATE):
 		'''
 			Trains 1-d CNN on climate change news articles.
 			Referenced from https://www.microsoft.com/developerblog/2017/12/04/predicting-stock-performance-deep-learning/
@@ -63,14 +65,14 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 		labels_index =  {0:0,1:1}
 
 		#tokenize text
-		tokenizer = Tokenizer(num_words=MAX_NUM_WORDS)
+		tokenizer = Tokenizer(num_words=max_nb_words)
 		tokenizer.fit_on_texts(features)
 		sequences = tokenizer.texts_to_sequences(features)
 
 		word_index = tokenizer.word_index
 		print('Found %s unique tokens.' % len(word_index))
 
-		data = pad_sequences(sequences, maxlen=MAX_SEQUENCE_LENGTH)
+		data = pad_sequences(sequences, maxlen=max_sequence_len)
 
 		labels = to_categorical(np.asarray(labels))
 		print('Shape of data tensor:', data.shape)
@@ -98,7 +100,7 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 			
 
 			for word, i in word_index.items():
-			    if i >= MAX_NUM_WORDS:
+			    if i >= max_nb_words:
 			        continue
 			    embedding_vector = embeddings_index.get(word)
 			    if embedding_vector is not None:
@@ -106,12 +108,12 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 			        embedding_matrix[i] = embedding_vector
 
 		elif type=='google':
-
+			
 			print("Using Google pretrained word embeddings.")
 			word_vectors = KeyedVectors.load_word2vec_format('./saved_models/GoogleNews-vectors-negative300.bin', binary=True)
 
 			for word, i in word_index.items():
-			    if i >= MAX_NUM_WORDS:
+			    if i >= max_nb_words:
 			        continue
 			    if word in word_vectors.wv.vocab:
 			    	embedding_vector = word_vectors[word]
@@ -121,12 +123,12 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 			    	
 
 		elif type=='ours':
-
+			
 			print("Using our trained word embeddings.")
 			word_vectors = KeyedVectors.load('./saved_models/final_w2v/w2v_1_both')
 
 			for word, i in word_index.items():
-			    if i >= MAX_NUM_WORDS:
+			    if i >= max_nb_words:
 			        continue
 			    if word in word_vectors.wv.vocab:
 			    	embedding_vector = word_vectors[word]
@@ -140,7 +142,7 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 		embedding_layer = Embedding(num_words,
 		                            EMBEDDING_DIM,
 		                            embeddings_initializer=Constant(embedding_matrix),
-		                            input_length=MAX_SEQUENCE_LENGTH,
+		                            input_length=max_sequence_len,
 		                            trainable=False)
 
 		sequence_input=Input(shape=(max_sequence_len,), dtype='int32')
@@ -148,20 +150,20 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 		embedded_sequences=embedding_layer(sequence_input)
 
 		#Model architecture
-		x = Conv1D(128, 5, activation='elu', kernel_initializer='lecun_uniform')(embedded_sequences)
-		x = MaxPooling1D(5)(x)
+		x = Conv1D(128, 5, activation='relu', kernel_initializer='lecun_uniform')(embedded_sequences)
+		x = MaxPooling1D(3)(x)
 		x = Dropout(innerlayer_dropout_rate)(x)
 		 
-		x = Conv1D(128, 5, activation='elu', kernel_initializer='lecun_uniform')(x)
-		x = MaxPooling1D(5)(x)
+		x = Conv1D(128, 5, activation='relu', kernel_initializer='lecun_uniform')(x)
+		x = MaxPooling1D(3)(x)
 		x = Dropout(innerlayer_dropout_rate)(x)
 		 
-		x = Conv1D(128, 5, activation='elu', kernel_initializer='lecun_uniform')(x)
+		x = Conv1D(128, 5, activation='relu', kernel_initializer='lecun_uniform')(x)
 		x = MaxPooling1D(35)(x)  # global max pooling
 		 
 		x = Flatten()(x)
-		x = Dense(100, activation='elu', kernel_initializer='lecun_uniform')(x) # best initializers: #glorot_normal #VarianceScaling #lecun_uniform
-		x = Dropout(innerlayer_dropout_rate)(x)
+		x = Dense(100, activation='relu', kernel_initializer='lecun_uniform')(x) # best initializers: #glorot_normal #VarianceScaling #lecun_uniform
+		x = Dropout(dropout_rate)(x)
 		 
 		preds = Dense(len(labels_index), activation='softmax')(x) #no initialization in output layer
 		 
@@ -182,7 +184,6 @@ def train_cnn(features, labels, type, max_sequence_len = MAX_SEQUENCE_LENGTH, ma
 		          batch_size=32,
 		          epochs=24,
 		          validation_data=(x_val, y_val), callbacks=[early_stopping, history])
-
 
 		model.save('./saved_models/classifiers/cnn_earlystop_{}'.format(type))
 
@@ -224,13 +225,16 @@ if __name__ == '__main__':
 	all_articles=left_articles+right_articles
 	all_labels = left_data['denial?'].tolist() + right_data['denial?'].tolist()
 
-	preprocessed_articles=preprocess(all_articles)
-
-	train_cnn(preprocessed_articles, all_labels, 'glove')
-
-	train_cnn(preprocessed_articles, all_labels, 'google')
+	preprocessed_articles=[' '.join(article) for article in preprocess(all_articles)]
 	
 	train_cnn(preprocessed_articles, all_labels, 'ours')
+
+	train_cnn(preprocessed_articles, all_labels, 'glove')
+	
+	train_cnn(preprocessed_articles, all_labels, 'google')
+	
+	
+	
 
 
 
